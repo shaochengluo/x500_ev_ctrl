@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>cpsl_px4_bridge</name>
+  <version>0.0.1</version>
+  <description>Vicon → PX4 External Vision bridge</description>
+  <maintainer email="cpsl@example.com">cpsl</maintainer>
+  <license>MIT</license>
+
+  <!-- Python build, not CMake -->
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <depend>rclpy</depend>
+  <depend>geometry_msgs</depend>
+  <depend>px4_msgs</depend>
+
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

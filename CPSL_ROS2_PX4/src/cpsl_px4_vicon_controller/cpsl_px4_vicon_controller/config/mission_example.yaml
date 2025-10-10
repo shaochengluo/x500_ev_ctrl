@@ -1,0 +1,12 @@
+/**:
+  ros__parameters:
+    frame: ENU
+    # waypoints: 
+    #   - [0.0, 0.0, 0.6, 0.0]
+    xy_accept: 0.10
+    z_accept: 0.10
+    hold_time: 5.0
+    publish_rate_hz: 20.0
+    auto_arm: true
+    auto_offboard: true
+
