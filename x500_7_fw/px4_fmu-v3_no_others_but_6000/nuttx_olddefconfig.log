@@ -1,0 +1,31 @@
+CP: arch/dummy/Kconfig to /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/nuttx/arch/dummy/dummy_kconfig
+CP: boards/dummy/Kconfig to /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/nuttx/../../../../boards/px4/fmu-v3/nuttx-config/Kconfig
+LN: platform/board to /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/platform/dummy
+LN: include/arch to arch/arm/include
+LN: include/arch/board to /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/nuttx/../../../../boards/px4/fmu-v3/nuttx-config/include
+LN: drivers/platform to /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/nuttx/drivers/dummy
+LN: include/arch/chip to /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/nuttx/arch/arm/include/stm32
+LN: arch/arm/src/chip to /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/nuttx/arch/arm/src/stm32
+LN: arch/arm/src/board to /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/nuttx/../../../../boards/px4/fmu-v3/nuttx-config/src
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/audioutils
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/boot
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/canutils
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/crypto
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/examples/mcuboot
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/examples
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/fsutils
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/games
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/gpsutils
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/graphics
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/industry
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/interpreters
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/math
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/mlearning
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/netutils
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/system
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/testing
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/wireless/bluetooth
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/wireless/ieee802154
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps/wireless
+mkkconfig in /home/cpsl/PX4-Autopilot_1.15.4/platforms/nuttx/NuttX/apps
+DEBUG: kconfiglib kconfig-conf wrapper, arguments: --olddefconfig Kconfig

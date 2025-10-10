@@ -1,0 +1,16 @@
+# ninja log v5
+0	8	1752244041698125124	ucdr-prefix/src/ucdr-stamp/ucdr-mkdir	34ff6de9ca1a9819
+15	23	1752244041712125207	ucdr-prefix/src/ucdr-stamp/ucdr-update	1edc4375cd34d6b7
+0	8	1752244041698125124	/home/cpsl/PX4-Autopilot_1.15.4/build/px4_fmu-v3_default/src/modules/uxrce_dds_client/src/libmicroxrceddsclient_project-build/microcdr/src/microcdr-build/ucdr-prefix/src/ucdr-stamp/ucdr-mkdir	34ff6de9ca1a9819
+9	15	1752244041705125165	ucdr-prefix/src/ucdr-stamp/ucdr-download	829c1413f470f1e9
+9	15	1752244041705125165	/home/cpsl/PX4-Autopilot_1.15.4/build/px4_fmu-v3_default/src/modules/uxrce_dds_client/src/libmicroxrceddsclient_project-build/microcdr/src/microcdr-build/ucdr-prefix/src/ucdr-stamp/ucdr-download	829c1413f470f1e9
+15	23	1752244041712125207	/home/cpsl/PX4-Autopilot_1.15.4/build/px4_fmu-v3_default/src/modules/uxrce_dds_client/src/libmicroxrceddsclient_project-build/microcdr/src/microcdr-build/ucdr-prefix/src/ucdr-stamp/ucdr-update	1edc4375cd34d6b7
+23	32	1752244041721125260	ucdr-prefix/src/ucdr-stamp/ucdr-patch	9b2cb84323f87ba2
+23	32	1752244041721125260	/home/cpsl/PX4-Autopilot_1.15.4/build/px4_fmu-v3_default/src/modules/uxrce_dds_client/src/libmicroxrceddsclient_project-build/microcdr/src/microcdr-build/ucdr-prefix/src/ucdr-stamp/ucdr-patch	9b2cb84323f87ba2
+1	29	1752244041788125657	CMakeFiles/microcdr.dir/src/c/types/string.c.obj	6223908d0ffddf66
+0	45	1752244041804125751	CMakeFiles/microcdr.dir/src/c/common.c.obj	efd142e39144bb60
+1	109	1752244041868126130	CMakeFiles/microcdr.dir/src/c/types/sequence.c.obj	6432542bb7ffc602
+1	262	1752244042021127036	CMakeFiles/microcdr.dir/src/c/types/array.c.obj	6749d7596cfc5b09
+0	302	1752244042061127273	CMakeFiles/microcdr.dir/src/c/types/basic.c.obj	4da697934da9012f
+302	314	1752244042073127344	libmicrocdr.a	e9ea554d4df8baea
+0	4	0	CMakeFiles/install.util	f9e92ccfbee463c5
