@@ -25,7 +25,7 @@ class PX4SensorCombinedToImu(Node):
         )
 
         self.pub = self.create_publisher(Imu, 'imu/data', qos)
-        self.sub = self.create_subscription(SensorCombined, '/fmu/out/sensor_combined', self.cb, qos)
+        self.sub = self.create_subscription(SensorCombined, '/cpsl_uav_7/fmu/out/sensor_combined', self.cb, qos)
 
     def frd_to_flu(self, x, y, z):
         # FRD (PX4) -> FLU (ROS): [x, y, z] -> [ +x, -y, -z ]

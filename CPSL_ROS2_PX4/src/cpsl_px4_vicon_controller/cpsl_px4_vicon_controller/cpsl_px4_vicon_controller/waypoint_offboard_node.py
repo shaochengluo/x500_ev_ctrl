@@ -22,7 +22,7 @@ TRAJ_MODE = "line"   # "line" | "square" | "circle"
 
 # All coordinates below are in ENU: (x_east, y_north, z_up) in meters
 # 1) LINE: single target point after takeoff
-LINE_P1_ENU: Tuple[float, float, float] = (0.0, 0.01, 0.6)
+LINE_P1_ENU: Tuple[float, float, float] = (0.035, 0.037, 0.6)
 
 # 2) SQUARE: four corners 1→2→3→4 (takeoff point is **not** a corner)
 # SQUARE_POINTS_ENU: List[Tuple[float, float, float]] = [
@@ -185,7 +185,7 @@ class WaypointOffboard(Node):
         # Mission-complete → landing delay
         self.mission_done_time = None
         self.landing_initiated = False
-        self.LAND_DELAY_S = 1000.0  # <-- land 10 s after mission complete
+        self.LAND_DELAY_S = 10.0  # <-- land 10 s after mission complete
 
         self.timer = self.create_timer(1.0/self.rate_hz, self.on_timer)
 
