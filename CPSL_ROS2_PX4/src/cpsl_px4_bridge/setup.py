@@ -26,6 +26,8 @@ setup(
         'console_scripts': [
             # original bridge
             'vicon_to_px4_ev = cpsl_px4_bridge.vicon_to_px4_ev:main',
+            # new bridge
+            'vicon_to_px4_ev_luo = cpsl_px4_bridge.vicon_to_px4_ev_luo:main',
             # NEW spoofer bridge (matches your new filename)
             'spoof_vicon_to_px4_ev = cpsl_px4_bridge.spoof_vicon_to_px4_ev:main',
         ],

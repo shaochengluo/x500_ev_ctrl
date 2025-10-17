@@ -1,0 +1,6 @@
+topic,type,count,start_time_s,end_time_s,duration_s,avg_rate_hz
+/spoofing_position_cmd_vicon,geometry_msgs/msg/Vector3Stamped,377,1759950515.003824949,1759950552.600311041,37.596486,10.028
+/tracked_uav_pose,geometry_msgs/msg/PoseStamped,709,1759950478.901755095,1759950552.686613560,73.784859,9.609
+/tracked_uav_pose_vicon,geometry_msgs/msg/PoseStamped,709,1759950478.902056217,1759950552.686739683,73.784683,9.609
+/vicon/x500_3/x500_3,geometry_msgs/msg/TransformStamped,7370,1759950478.821920156,1759950552.683495522,73.861575,99.781
+/vicon/x500_4/x500_4,geometry_msgs/msg/TransformStamped,7370,1759950478.821994066,1759950552.683544874,73.861551,99.781

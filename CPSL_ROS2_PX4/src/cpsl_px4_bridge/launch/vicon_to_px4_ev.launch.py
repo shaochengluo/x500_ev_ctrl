@@ -9,8 +9,8 @@ def generate_launch_description():
         DeclareLaunchArgument('namespace', default_value='cpsl_uav_7'),
         Node(
             package='cpsl_px4_bridge',
-            executable='vicon_to_px4_ev',
-            name='vicon_to_px4_ev',
+            executable='vicon_to_px4_ev_luo',
+            name='vicon_to_px4_ev_luo',
             namespace=ns,
             output='screen',
             parameters=[{

@@ -1,0 +1,5 @@
+topic,type,count,start_time_s,end_time_s,duration_s,avg_rate_hz
+/tracked_uav_pose,geometry_msgs/msg/PoseStamped,926,1758823678.491569042,1758823771.244595051,92.753026,9.984
+/tracked_uav_pose_vicon,geometry_msgs/msg/PoseStamped,926,1758823678.491601467,1758823771.244626522,92.753025,9.984
+/vicon/x500_3/x500_3,geometry_msgs/msg/TransformStamped,18537,1758823678.377344608,1758823771.257695436,92.880351,199.579
+/vicon/x500_4/x500_4,geometry_msgs/msg/TransformStamped,18527,1758823678.439641237,1758823771.257819176,92.818178,199.605
