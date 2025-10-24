@@ -19,7 +19,7 @@ cd CPSL_ROS2_PX4
 source install/setup.bash
 ros2 launch px4_controller joy_control_launch.py joy_enable:=false control_enable:=true namespace:=cpsl_uav_7
 
-## Lanuch the PX4 vicon bridge node
+## Lanuch the PX4 vicon bridge node (used luo version)
 ros2 launch cpsl_px4_bridge vicon_to_px4_ev.launch.py namespace:=cpsl_uav_7
 
 ## Spoofing PX4 vicon bridge
@@ -34,9 +34,15 @@ ros2 launch cpsl_px4_vicon_controller waypoint_mission_launch.py   params_file:=
 ## ---------------------------------------- End ---------------------------------------------- ##
 
 ## ---------------------------------------- Check ---------------------------------------------- ##
+ros2 topic echo /vicon/x500_7/x500_7
+
 ros2 topic echo /cpsl_uav_7/fmu/in/vehicle_visual_odometry
 ros2 topic echo /cpsl_uav_7/fmu/out/vehicle_odometry
 
-ros2 topic echo /vicon/x500_7/x500_7
 
 ros2 bag record /vicon/x500_7/x500_7 /cpsl_uav_7/fmu/in/vehicle_visual_odometry  /cpsl_uav_7/fmu/out/vehicle_odometry /cpsl_uav_7/fmu/out/sensor_combined
+
+### ros2 bag to csv ###
+cd /home/cpsl/px4_ws/src/CPSL_UAV_Tracking/scripts
+conda deactivate
+python3 ros2bag_to_csv.py /home/cpsl/px4_ws/new_test_log38 --out ./csv_out
