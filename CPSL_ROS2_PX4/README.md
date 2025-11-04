@@ -22,14 +22,33 @@ ros2 launch px4_controller joy_control_launch.py joy_enable:=false control_enabl
 ## Lanuch the PX4 vicon bridge node (used luo version)
 ros2 launch cpsl_px4_bridge vicon_to_px4_ev.launch.py namespace:=cpsl_uav_7
 
-## Spoofing PX4 vicon bridge
-## ros2 launch cpsl_px4_bridge spoof_vicon_to_px4_ev.launch.py
-
 ## Launch Vicon node
 ros2 launch vicon_bridge all_segments.launch.py
 
+## Change Mode to Burst+Gated+External_Source
+
+## Launch Arduino Switch--NOTE the ACM number
+conda deactivate
+cd /home/cpsl/px4_ws/src/arduino
+python switch_uno.py
+
+## Launch Interceptor
+conda deactivate
+cd /home/cpsl/px4_ws/src/live_ros_scripts
+python gyro_sine_offset_monitor.py
+
+## Turn on signal in FuncGen
+
+## ---------For Debug------------------##
+ros2 run sensor_combined2imu sensor_combined2imu --ros-args -p frame_id:=fmu_imu
+
+conda deactivate
+cd px4_ws/src/quat2euler
+python quat2euler.py 
+
+
 ## Launch the waypoint controller
-ros2 launch cpsl_px4_vicon_controller waypoint_mission_launch.py   params_file:=/home/cpsl/px4_ws/src/CPSL_ROS2_PX4/src/cpsl_px4_vicon_controller/cpsl_px4_vicon_controller/config/mission_example.yaml
+<!-- ros2 launch cpsl_px4_vicon_controller waypoint_mission_launch.py   params_file:=/home/cpsl/px4_ws/src/CPSL_ROS2_PX4/src/cpsl_px4_vicon_controller/cpsl_px4_vicon_controller/config/mission_example.yaml -->
 
 ## ---------------------------------------- End ---------------------------------------------- ##
 
@@ -40,7 +59,7 @@ ros2 topic echo /cpsl_uav_7/fmu/in/vehicle_visual_odometry
 ros2 topic echo /cpsl_uav_7/fmu/out/vehicle_odometry
 
 
-ros2 bag record /vicon/x500_7/x500_7 /cpsl_uav_7/fmu/in/vehicle_visual_odometry  /cpsl_uav_7/fmu/out/vehicle_odometry /cpsl_uav_7/fmu/out/sensor_combined
+ros2 bag record /vicon/x500_7/x500_7 /cpsl_uav_7/fmu/in/vehicle_visual_odometry  /cpsl_uav_7/fmu/out/vehicle_odometry /cpsl_uav_7/fmu/out/sensor_combined /gyro_offset_cutoff /attack_enable 
 
 ### ros2 bag to csv ###
 cd /home/cpsl/px4_ws/src/CPSL_UAV_Tracking/scripts
