@@ -155,14 +155,19 @@ class GyroSineOffsetNode(Node):
         self.declare_parameter('linear_drift_window_sec', 5.0)
         self.declare_parameter('max_drift_hz_per_s', 0.1)
         # Robustness gates (disabled when negative)
-        self.declare_parameter('min_r2', 0.4)
+        self.declare_parameter('min_r2', 0.5)
         self.declare_parameter('min_amp', 0.05)
         self.declare_parameter('min_freq', 0.1)
         self.declare_parameter('arm_after_sec', 0.0)
         self.declare_parameter('debounce_count', 3)
+        # Lock-on-confirm (no firing) parameters
+        self.declare_parameter('lock_on_confirm', True)
+        self.declare_parameter('lock_min_margin_ms', 80.0)
+        # One-shot post-lock prefire for the first scheduled cutoff (milliseconds)
+        self.declare_parameter('postlock_first_prefire_ms', 0)  # set 0 to disable
         # (pre-lock prefire removed)
         # Performance knobs
-        self.declare_parameter('eval_stride_prelock', 50)
+        self.declare_parameter('eval_stride_prelock', 800)
         self.declare_parameter('eval_stride_postlock', 1)
         self.declare_parameter('progress_every', 100)
         self.declare_parameter('qos_reliable', False)
@@ -201,6 +206,14 @@ class GyroSineOffsetNode(Node):
         self.eval_stride_postlock: int = max(1, postlock)
         self.progress_every: int = int(self.get_parameter('progress_every').get_parameter_value().integer_value)
         self.publish_schedule_debug: bool = self.get_parameter('publish_schedule_debug').get_parameter_value().bool_value
+        # Lock-on-confirm knobs
+        self.lock_on_confirm: bool = self.get_parameter('lock_on_confirm').get_parameter_value().bool_value
+        self.lock_min_margin_s: float = float(self.get_parameter('lock_min_margin_ms').get_parameter_value().double_value) * 1e-3
+        # Post-lock first-cutoff prefire
+        self._postlock_first_prefire_s: float = float(
+            self.get_parameter('postlock_first_prefire_ms').get_parameter_value().double_value
+        ) * 1e-3
+        self._postlock_first_prefire_used: bool = False
 
         qos_reliable: bool = self.get_parameter('qos_reliable').get_parameter_value().bool_value
         qos_depth: int = int(self.get_parameter('qos_depth').get_parameter_value().integer_value)
@@ -255,6 +268,7 @@ class GyroSineOffsetNode(Node):
         self._warned_phase_axis: bool = False
         # Fit lock + cycle counting
         self._fit_locked: bool = False
+        self._lock_established: bool = False  # true once we've locked without firing
         self._lock_f: Optional[float] = None
         self._lock_phi_abs: Optional[float] = None
         self._t_lock: Optional[float] = None
@@ -281,12 +295,21 @@ class GyroSineOffsetNode(Node):
         self._sum_d_ros = 0.0
         self._sum_d_data = 0.0
         self._burst_max_ratio = 0.0
+        # Arrival-window mode: "off" | "lock_to_cutoff" | "cutoff_to_enable"
+        self._arr_window_mode = "off"
 
         # (pre-lock bias bookkeeping removed)
 
         # Publish initial state (enabled)
         self.attack_pub.publish(Bool(data=True))
         self.cutoff_pub.publish(Int32(data=1))
+        # Optional log for prefire setting
+        try:
+            self.get_logger().info(
+                f"Post-lock first-cutoff prefire={self._postlock_first_prefire_s*1e3:.0f} ms"
+            )
+        except Exception:
+            pass
 
         self.get_logger().info(
             'GyroSineOffsetNode started. '
@@ -311,6 +334,57 @@ class GyroSineOffsetNode(Node):
         cutoff = t_now - self.window_secs
         while self.buf and self.buf[0][0] < cutoff:
             self.buf.popleft()
+
+    def _establish_lock_and_schedule(self, t_now: float, fhat: float, phihat: float, t0_of_fit: float) -> None:
+        """Freeze f and absolute phase, then pre-compute the next trough/peak without firing."""
+        two_pi = 2.0 * np.pi
+        # Absolute phase: the fit used t_rel = t_abs - t0_of_fit
+        phi_abs = phihat - two_pi * fhat * t0_of_fit
+
+        self._fit_locked = True
+        self._lock_f = max(fhat, 1e-9)
+        self._lock_phi_abs = float(phi_abs)
+        self._t_lock = float(t_now)
+        self._T_lock = 1.0 / self._lock_f
+        # Optionally keep your drift estimate here if you want
+
+        # Phase now
+        theta_now = two_pi * self._lock_f * t_now + self._lock_phi_abs
+
+        # cycles to upcoming anchors
+        def pos_mod(x, m):
+            return (x % m + m) % m
+        cycles_to_peak = pos_mod((0.5 * np.pi) - theta_now, two_pi) / two_pi
+        cycles_to_trough = pos_mod((1.5 * np.pi) - theta_now, two_pi) / two_pi
+
+        # Time deltas (no drift case; keep your drift solver if enabled)
+        dt_peak = cycles_to_peak / self._lock_f
+        dt_trough = cycles_to_trough / self._lock_f
+
+        # Absolute times
+        self._next_peak_time = t_now + dt_peak
+        self._next_trough_time = t_now + dt_trough
+
+        # Action times with delays
+        self._next_cutoff_time = self._next_peak_time - float(self.time_delay_off)
+        self._next_enable_time = self._next_trough_time - float(self.time_delay_on)
+
+        # Ensure both are strictly in the future
+        if self._next_cutoff_time <= t_now:
+            self._next_peak_time += self._T_lock
+            self._next_cutoff_time = self._next_peak_time - float(self.time_delay_off)
+        if self._next_enable_time <= t_now:
+            self._next_trough_time += self._T_lock
+            self._next_enable_time = self._next_trough_time - float(self.time_delay_on)
+
+        self._lock_established = True
+        try:
+            self.get_logger().info(
+                "LOCK established without firing: f=%.6fHz T=%.3fms first_cutoff@%.6f first_enable@%.6f (t_now=%.6f)" %
+                (self._lock_f, self._T_lock * 1e3, self._next_cutoff_time, self._next_enable_time, t_now)
+            )
+        except Exception:
+            pass
 
     def _evaluate(self, t_now: float) -> None:
         n = len(self.buf)
@@ -431,6 +505,31 @@ class GyroSineOffsetNode(Node):
             if self._phase_fit_hits < max(1, int(self.debounce_count)):
                 return
 
+            # We reach this point only when fit_good, debounce satisfied, and armed.
+            if self.lock_on_confirm and not self._fit_locked:
+                # Compute dt to the next peak/trough right now to avoid locking on top of an anchor
+                two_pi = 2.0 * np.pi
+                t_arr = np.array([t for (t, _, _, _) in self.buf], dtype=float)
+                t_rel = t_arr - t_arr[0]
+                theta_now = two_pi * fhat * t_rel[-1] + phihat
+                dtheta_peak = ((0.5 * np.pi) - theta_now) % (two_pi)
+                dtheta_trough = ((1.5 * np.pi) - theta_now) % (two_pi)
+                dt_peak = float(dtheta_peak / (two_pi * fhat))
+                dt_trough = float(dtheta_trough / (two_pi * fhat))
+
+                # Only establish the lock if we have some margin from the immediate anchors
+                if (dt_peak > self.lock_min_margin_s) and (dt_trough > self.lock_min_margin_s):
+                    # Freeze f/phi and pre-compute the schedule WITHOUT firing
+                    self._establish_lock_and_schedule(t_now, fhat, phihat, t_arr[0])
+                    # Right after lock established without firing, measure arrivals until first cutoff
+                    try:
+                        self._arr_open("lock_to_cutoff", "lock→first cutoff")
+                    except Exception:
+                        pass
+                    # Skip the rest of the pre-lock firing logic for this eval
+                    return
+                # Else: too close to an anchor; let next eval lock (or let normal crossing fire)
+
             # Phase calculations using relative time base (pre-lock)
             def pos_mod(x, m):
                 return (x % m + m) % m
@@ -444,8 +543,22 @@ class GyroSineOffsetNode(Node):
             # Derive debug dts from deterministic schedule
             dt_peak = float(max(0.0, (self._next_cutoff_time or t_now) - t_now))
             dt_trough = float(max(0.0, (self._next_enable_time or t_now) - t_now))
-            # Deterministic schedule: trigger exactly at scheduled times
-            entered_peak_window = (self._next_cutoff_time is not None) and (t_now >= self._next_cutoff_time)
+            # Deterministic schedule: trigger at scheduled times with optional one-shot prefire (cutoff only)
+            entered_peak_window = False
+            if self._next_cutoff_time is not None:
+                if (not self._postlock_first_prefire_used) and (self._postlock_first_prefire_s > 0.0):
+                    t_fire_off = self._next_cutoff_time - self._postlock_first_prefire_s
+                else:
+                    t_fire_off = self._next_cutoff_time
+                entered_peak_window = (t_now >= t_fire_off)
+                # Optional debug
+                try:
+                    self.get_logger().debug(
+                        f"cutoff sched={self._next_cutoff_time:.6f} prefire@{t_fire_off:.6f} "
+                        f"used={self._postlock_first_prefire_used} now={t_now:.6f}"
+                    )
+                except Exception:
+                    pass
             entered_trough_window = (self._next_enable_time is not None) and (t_now >= self._next_enable_time)
         else:
             # --- Pre-lock detection based on phase window crossing ---
@@ -557,15 +670,19 @@ class GyroSineOffsetNode(Node):
             self.cutoff_pub.publish(Int32(data=0))
             self.cutoff_latched = True
             action_taken = True
-            # (pre-lock prefire consumed marker removed)
-            # Open window: start observing arrivals until the next enable
-            self._log_arrivals = True
-            self._arr_samples = 0
-            self._sum_d_ros = 0.0
-            self._sum_d_data = 0.0
-            self._burst_counter = 0
-            self._burst_max_ratio = 0.0
-            self.get_logger().info("ARR window opened (cutoff→next enable)")
+            # Consume the one-shot prefire after the FIRST post-lock cutoff
+            if self._fit_locked and (not self._postlock_first_prefire_used):
+                self._postlock_first_prefire_used = True
+            # Close lock→first cutoff window if open, then open cutoff→enable window
+            if self._arr_window_mode == "lock_to_cutoff":
+                try:
+                    self._arr_close("lock→first cutoff")
+                except Exception:
+                    pass
+            try:
+                self._arr_open("cutoff_to_enable", "cutoff→next enable")
+            except Exception:
+                pass
             # (pre-lock bias one-shot marker removed)
             t = self.get_clock().now()  # ROS time
             # Estimate ROS time aligned to sensor time origin (first sample)
@@ -689,24 +806,12 @@ class GyroSineOffsetNode(Node):
             self.cutoff_pub.publish(Int32(data=1))
             self.cutoff_latched = False
             action_taken = True
-            # Close window: summarize what happened between cutoff and this enable
-            if self._log_arrivals:
-                mean_d_ros  = (self._sum_d_ros  / self._arr_samples) if self._arr_samples else float('nan')
-                mean_d_data = (self._sum_d_data / self._arr_samples) if self._arr_samples else float('nan')
-                self.get_logger().info(
-                    "ARR window summary: samples=%d  ΣΔROS=%.3f ms  ΣΔt_data=%.3f ms  "
-                    "meanΔROS=%.3f ms  meanΔt_data=%.3f ms  "
-                    "burst_msgs=%d  max_ratio=%.1f" %
-                    (self._arr_samples,
-                     self._sum_d_ros*1e3,
-                     self._sum_d_data*1e3,
-                     mean_d_ros*1e3,
-                     mean_d_data*1e3,
-                     self._burst_counter,
-                     self._burst_max_ratio)
-                )
-            self._log_arrivals = False
-            self.get_logger().info("ARR window closed (enable reached)")
+            # Close cutoff→enable window if open
+            if self._arr_window_mode == "cutoff_to_enable":
+                try:
+                    self._arr_close("cutoff→next enable")
+                except Exception:
+                    pass
             t = self.get_clock().now()  # ROS time
             # Estimate ROS time aligned to sensor time origin (first sample)
             ros_est = None
@@ -836,6 +941,39 @@ class GyroSineOffsetNode(Node):
         # Update "last" pointers every callback (even when window closed)
         self._last_ros_arrival = ros_now
         self._last_t_data = t_sec
+
+    def _arr_open(self, mode: str, label: str) -> None:
+        self._arr_window_mode = mode
+        self._log_arrivals = True
+        self._arr_samples = 0
+        self._sum_d_ros = 0.0
+        self._sum_d_data = 0.0
+        self._burst_counter = 0
+        self._burst_max_ratio = 0.0
+        try:
+            self.get_logger().info(f"ARR window opened ({label})")
+        except Exception:
+            pass
+
+    def _arr_close(self, label: str) -> None:
+        if self._log_arrivals:
+            mean_d_ros = (self._sum_d_ros / self._arr_samples) if self._arr_samples else float('nan')
+            mean_d_data = (self._sum_d_data / self._arr_samples) if self._arr_samples else float('nan')
+            try:
+                self.get_logger().info(
+                    "ARR window summary: samples=%d  ΣΔROS=%.3f ms  ΣΔt_data=%.3f ms  "
+                    "meanΔROS=%.3f ms  meanΔt_data=%.3f ms  burst_msgs=%d  max_ratio=%.1f" %
+                    (self._arr_samples, self._sum_d_ros*1e3, self._sum_d_data*1e3,
+                     mean_d_ros*1e3, mean_d_data*1e3, self._burst_counter, self._burst_max_ratio)
+                )
+            except Exception:
+                pass
+        self._log_arrivals = False
+        self._arr_window_mode = "off"
+        try:
+            self.get_logger().info(f"ARR window closed ({label})")
+        except Exception:
+            pass
 
     def _near_anchor(self, t_now: float, margin_s: float = 0.025) -> bool:
         if not self._fit_locked:

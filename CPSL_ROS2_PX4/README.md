@@ -28,6 +28,7 @@ ros2 launch vicon_bridge all_segments.launch.py
 ## Change Mode to Burst+Gated+External_Source
 
 ## Launch Arduino Switch--NOTE the ACM number
+# Plug in Arduino
 conda deactivate
 cd /home/cpsl/px4_ws/src/arduino
 python switch_uno.py
@@ -59,7 +60,7 @@ ros2 topic echo /cpsl_uav_7/fmu/in/vehicle_visual_odometry
 ros2 topic echo /cpsl_uav_7/fmu/out/vehicle_odometry
 
 
-ros2 bag record /vicon/x500_7/x500_7 /cpsl_uav_7/fmu/in/vehicle_visual_odometry  /cpsl_uav_7/fmu/out/vehicle_odometry /cpsl_uav_7/fmu/out/sensor_combined /gyro_offset_cutoff /attack_enable 
+ros2 bag record /vicon/x500_7/x500_7 /cpsl_uav_7/fmu/in/vehicle_visual_odometry  /cpsl_uav_7/fmu/out/vehicle_odometry /cpsl_uav_7/fmu/out/sensor_combined /gyro_offset_cutoff /attack_enable /gyro_schedule_debug
 
 ### ros2 bag to csv ###
 cd /home/cpsl/px4_ws/src/CPSL_UAV_Tracking/scripts
