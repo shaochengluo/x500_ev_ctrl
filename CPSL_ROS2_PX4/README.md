@@ -7,8 +7,10 @@ colcon build --packages-select cpsl_px4_bridge
 
 ## Change PX4 namespace - QGC-Analyze Tools - Mavlink Console
 uxrce_dds_client stop
-
 uxrce_dds_client start -n cpsl_uav_7
+
+ekf2 stop 
+ekf2 start 
 
 ## Connect PX4 to ROS2
 MicroXRCEAgent udp4 -p 8888
@@ -28,10 +30,12 @@ ros2 launch vicon_bridge all_segments.launch.py
 ## Change Mode to Burst+Gated+External_Source
 
 ## Launch Arduino Switch--NOTE the ACM number
+
 # Plug in Arduino
 conda deactivate
 cd /home/cpsl/px4_ws/src/arduino
 python switch_uno.py
+## RESET ARUDINO!!! MAKE SURE FunGen does not wait for trigger sig
 
 ## Launch Interceptor
 conda deactivate

@@ -148,7 +148,7 @@ class GyroSineOffsetNode(Node):
         self.declare_parameter('required_cycles', 2)
         self.declare_parameter('time_delay_off', 0.0)
         self.declare_parameter('time_delay_on', 0.0)
-        self.declare_parameter('max_periods', 3)
+        self.declare_parameter('max_periods', 6)
         self.declare_parameter('log_on_trigger', True)
         # Linear drift configuration (post-lock, no more sine fits)
         self.declare_parameter('enable_linear_drift', False)
@@ -167,7 +167,7 @@ class GyroSineOffsetNode(Node):
         self.declare_parameter('postlock_first_prefire_ms', 0)  # set 0 to disable
         # (pre-lock prefire removed)
         # Performance knobs
-        self.declare_parameter('eval_stride_prelock', 800)
+        self.declare_parameter('eval_stride_prelock', 50)
         self.declare_parameter('eval_stride_postlock', 1)
         self.declare_parameter('progress_every', 100)
         self.declare_parameter('qos_reliable', False)
