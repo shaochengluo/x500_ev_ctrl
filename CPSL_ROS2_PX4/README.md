@@ -17,9 +17,9 @@ MicroXRCEAgent udp4 -p 8888
 
 
 ## Launch the PX4 control node
-cd CPSL_ROS2_PX4
+<!-- cd CPSL_ROS2_PX4
 source install/setup.bash
-ros2 launch px4_controller joy_control_launch.py joy_enable:=false control_enable:=true namespace:=cpsl_uav_7
+ros2 launch px4_controller joy_control_launch.py joy_enable:=false control_enable:=true namespace:=cpsl_uav_7 -->
 
 ## Lanuch the PX4 vicon bridge node (used luo version)
 ros2 launch cpsl_px4_bridge vicon_to_px4_ev.launch.py namespace:=cpsl_uav_7
