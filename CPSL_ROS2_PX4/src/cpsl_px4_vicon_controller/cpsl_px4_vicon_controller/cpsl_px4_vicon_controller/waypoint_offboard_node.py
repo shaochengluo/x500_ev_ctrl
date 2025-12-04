@@ -2,7 +2,7 @@
 import math
 import time
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 import numpy as np
 import rclpy
@@ -19,6 +19,7 @@ from px4_msgs.msg import (
 # ===================== USER TRAJECTORY CONFIG (EDIT THESE) =====================
 # Choose one: "line", "square", "circle"
 TRAJ_MODE = "line"   # "line" | "square" | "circle"
+FLIGHT_HEIGHT_M: float = 1.0
 
 # All coordinates below are in ENU: (x_east, y_north, z_up) in meters
 # 1) LINE: single target point after takeoff
@@ -45,6 +46,110 @@ CIRCLE_RADIUS_M: float = 0.7
 CIRCLE_NUM_POINTS: int = 16
 CIRCLE_CLOCKWISE: bool = True
 CIRCLE_START_ANGLE_DEG: float = 0.0  # 0° means start at (cx+R, cy)
+
+
+#### NEW CUSTOM PATHS #####
+# ZIGZAG: triangular wave path along y-axis with x oscillation
+ZIGZAG_AMPLITUDE_M: float = 0.3        # Peak lateral deviation (half the total width)
+ZIGZAG_SEGMENT_LENGTH_M: float = 0.5   # Distance between direction changes
+ZIGZAG_LENGTH_M: float = 4.0           # Total path length along y-axis
+ZIGZAG_NUM_POINTS: int = 40            # Number of waypoints
+
+# SINUSOID: smooth sinusoidal path along y-axis with x oscillation
+SINUSOID_AMPLITUDE_M: float = 0.3      # Peak lateral deviation (half the total width)
+SINUSOID_WAVELENGTH_M: float = 1.0     # Distance for one complete wave (peak to peak to peak)
+SINUSOID_LENGTH_M: float = 4.0         # Total path length along y-axis
+SINUSOID_NUM_POINTS: int = 40          # Number of waypoints (more = smoother curve)
+
+# FIGURE8: Lissajous curve figure-8 pattern
+FIGURE8_WIDTH_M: float = 1.0           # Total width of figure-8 (x extent)
+FIGURE8_LENGTH_M: float = 2.0          # Total length of figure-8 (y extent)
+FIGURE8_CENTER_ENU: Tuple[float, float] = (0.0, 1.0)  # Center point (x, y) in ENU
+FIGURE8_NUM_LOOPS: int = 1             # Number of times to trace the figure-8
+FIGURE8_NUM_POINTS: int = 60           # Number of waypoints per loop
+
+# RACETRACK: Two parallel straights connected by semicircular turns
+RACETRACK_STRAIGHT_LENGTH_M: float = 2.0   # Length of each straight segment
+RACETRACK_TURN_RADIUS_M: float = 0.5       # Radius of semicircular turns
+RACETRACK_CENTER_ENU: Tuple[float, float] = (0.0, 1.0)  # Center point (x, y) in ENU
+RACETRACK_NUM_POINTS: int = 60             # Total waypoints for full loop
+
+# STAR: 5-pointed star pattern with sharp angular turns
+STAR_RADIUS_M: float = 1.0             # Radius from center to star points
+STAR_NUM_POINTS: int = 5               # Number of star points (typically 5)
+STAR_CENTER_ENU: Tuple[float, float] = (0.0, 1.0)  # Center point (x, y) in ENU
+
+# STEP: Discrete lateral jumps at regular forward intervals (staircase pattern)
+STEP_WIDTH_M: float = 0.3              # Lateral step size
+STEP_LENGTH_M: float = 0.5             # Forward distance between steps
+STEP_TOTAL_LENGTH_M: float = 4.0       # Total forward distance
+STEP_NUM_STEPS: int = 8                # Number of lateral steps
+
+# LAWNMOWER: Back-and-forth sweeping pattern for area coverage
+LAWNMOWER_SWEEP_WIDTH_M: float = 2.0   # Width of each sweep (x extent)
+LAWNMOWER_SWEEP_LENGTH_M: float = 0.5  # Forward distance between sweeps
+LAWNMOWER_NUM_PASSES: int = 6          # Number of back-and-forth passes
+LAWNMOWER_START_ENU: Tuple[float, float] = (0.0, 0.0)  # Starting corner (x, y)
+
+# DIAMOND: Rhombus pattern with 45-degree diagonal movements
+DIAMOND_WIDTH_M: float = 1.0           # Total width (x extent)
+DIAMOND_LENGTH_M: float = 2.0          # Total length (y extent)
+DIAMOND_CENTER_ENU: Tuple[float, float] = (0.0, 1.0)  # Center point (x, y) in ENU
+
+# ELLIPSE: Stretched circle with different major/minor axes
+ELLIPSE_MAJOR_AXIS_M: float = 1.5      # Semi-major axis (half of longer dimension)
+ELLIPSE_MINOR_AXIS_M: float = 0.75     # Semi-minor axis (half of shorter dimension)
+ELLIPSE_CENTER_ENU: Tuple[float, float] = (0.0, 1.0)  # Center point (x, y) in ENU
+ELLIPSE_NUM_POINTS: int = 40           # Number of waypoints
+
+# ROSE: Polar rose curve creating flower-like petal pattern
+ROSE_AMPLITUDE_M: float = 1.0          # Maximum radius of rose petals
+ROSE_NUM_PETALS: int = 4               # Number of petals (use odd for n petals, even for 2n petals)
+ROSE_CENTER_ENU: Tuple[float, float] = (0.0, 1.0)  # Center point (x, y) in ENU
+ROSE_NUM_POINTS: int = 80              # Number of waypoints (more = smoother curve)
+
+# RANDOM: Pseudo-random waypoints within a bounded area
+RANDOM_BOUND_X_M: float = 1.0          # Half-width of bounding box (x extent from center)
+RANDOM_BOUND_Y_M: float = 2.0          # Half-length of bounding box (y extent from center)
+RANDOM_CENTER_ENU: Tuple[float, float] = (0.0, 2.0)  # Center of bounding box (x, y) in ENU
+RANDOM_NUM_POINTS: int = 15            # Number of random waypoints
+RANDOM_SEED: int = 42                  # Random seed for reproducibility
+
+# 5) CUSTOM: custom waypoints used in Peter & Ashir's experiments.
+
+
+CUSTOM_WAYPOINTS_ENU: Dict[int, List[Tuple[float, float, float]]] = {
+    # CUSTOM PATH 0: Straight line (4 meters)
+    0: [
+        (0.00, 0.00, FLIGHT_HEIGHT_M), # fly up to 1.0m
+        (0.00, 0.50, FLIGHT_HEIGHT_M), # fly 0.5m north
+        (0.00, 1.00, FLIGHT_HEIGHT_M), # fly 0.5m north (cumulative distance: 1.0m)
+        (0.00, 1.50, FLIGHT_HEIGHT_M), # fly 0.5m north (cumulative distance: 1.5m)
+        (0.00, 2.00, FLIGHT_HEIGHT_M), # fly 0.5m north (cumulative distance: 2.0m)
+        (0.00, 2.50, FLIGHT_HEIGHT_M), # fly 0.5m north (cumulative distance: 2.5m)
+        (0.00, 3.00, FLIGHT_HEIGHT_M), # fly 0.5m north (cumulative distance: 3.0m)
+        (0.00, 3.50, FLIGHT_HEIGHT_M), # fly 0.5m north (cumulative distance: 3.5m)
+        (0.00, 4.00, FLIGHT_HEIGHT_M), # fly 0.5m north (cumulative distance: 4.0m)
+    ],
+    1: [
+        (0.00, 0.00, FLIGHT_HEIGHT_M), # fly up to 1.0m
+        (0.00, 0.50, FLIGHT_HEIGHT_M), # fly 0.5m north
+        (0.00, 1.00, FLIGHT_HEIGHT_M), # fly 0.5m north (cumulative distance: 1.0m)
+        (0.00, 1.50, FLIGHT_HEIGHT_M), # fly 0.5m north (cumulative distance: 1.5m)
+        (0.00, 2.00, FLIGHT_HEIGHT_M), # fly 0.5m north (cumulative distance: 2.0m)
+        (0.00, 2.50, FLIGHT_HEIGHT_M), # fly 0.5m north (cumulative distance: 2.5m)
+        (0.00, 3.00, FLIGHT_HEIGHT_M), # fly 0.5m north (cumulative distance: 3.0m)
+        (0.00, 3.50, FLIGHT_HEIGHT_M), # fly 0.5m north (cumulative distance: 3.5m)
+        (0.00, 4.00, FLIGHT_HEIGHT_M), # fly 0.5m north (cumulative distance: 4.0m)
+        (0.00, 3.50, FLIGHT_HEIGHT_M), # fly 0.5m north (cumulative distance: 3.5m)
+        (0.00, 3.00, FLIGHT_HEIGHT_M), # fly 0.5m north (cumulative distance: 3.0m)
+        (0.00, 2.00, FLIGHT_HEIGHT_M), # fly 0.5m north (cumulative distance: 2.0m)
+        (0.00, 1.50, FLIGHT_HEIGHT_M), # fly 0.5m north (cumulative distance: 1.5m)
+        (0.00, 1.00, FLIGHT_HEIGHT_M), # fly 0.5m north (cumulative distance: 1.0m)
+        (0.00, 0.50, FLIGHT_HEIGHT_M), # fly 0.5m north
+        (0.00, 0.00, FLIGHT_HEIGHT_M), # fly back to 0
+    ],
+}
 
 # ==============================================================================
 
@@ -108,7 +213,218 @@ def generate_circle_waypoints() -> List[Waypoint]:
         pts.append(Waypoint.from_enu(xe, yn, cz))
     return pts
 
-def build_hardcoded_waypoints() -> List[Waypoint]:
+def generate_custom_zigzag_waypoints() -> List[Waypoint]:
+    pts = []
+    for i in range(ZIGZAG_NUM_POINTS):
+        forward_distance = (i / (ZIGZAG_NUM_POINTS - 1)) * ZIGZAG_LENGTH_M
+        # Triangular wave: position within current segment determines lateral offset
+        segment_pos = (forward_distance % (2 * ZIGZAG_SEGMENT_LENGTH_M)) / ZIGZAG_SEGMENT_LENGTH_M
+        if segment_pos <= 1.0:
+            lateral_deviation = ZIGZAG_AMPLITUDE_M * segment_pos
+        else:
+            lateral_deviation = ZIGZAG_AMPLITUDE_M * (2.0 - segment_pos)
+        pts.append(Waypoint.from_enu(lateral_deviation, forward_distance, FLIGHT_HEIGHT_M))
+    return pts
+
+def generate_custom_sinusoid_waypoints() -> List[Waypoint]:
+    pts = []
+    for i in range(SINUSOID_NUM_POINTS):
+        forward_distance = (i / (SINUSOID_NUM_POINTS - 1)) * SINUSOID_LENGTH_M
+        lateral_deviation = SINUSOID_AMPLITUDE_M * math.sin(2.0 * math.pi * forward_distance / SINUSOID_WAVELENGTH_M)
+        pts.append(Waypoint.from_enu(lateral_deviation, forward_distance, FLIGHT_HEIGHT_M))
+    return pts
+
+def generate_custom_figure8_waypoints() -> List[Waypoint]:
+    """Generate figure-8 (Lissajous curve) waypoints.
+    
+    Parametric form:
+        x = (width/2) * sin(t)
+        y = (length/2) * sin(2t)
+    where t goes from 0 to 2*pi for one complete figure-8.
+    """
+    pts = []
+    cx, cy = FIGURE8_CENTER_ENU
+    total_points = FIGURE8_NUM_LOOPS * FIGURE8_NUM_POINTS
+    for i in range(total_points):
+        t = (i / total_points) * FIGURE8_NUM_LOOPS * 2.0 * math.pi
+        lateral_deviation = (FIGURE8_WIDTH_M / 2.0) * math.sin(t)
+        forward_distance = (FIGURE8_LENGTH_M / 2.0) * math.sin(2.0 * t)
+        pts.append(Waypoint.from_enu(cx + lateral_deviation, cy + forward_distance, FLIGHT_HEIGHT_M))
+    return pts
+
+def generate_racetrack_waypoints() -> List[Waypoint]:
+    """Generate racetrack/oval waypoints: two straights connected by semicircular turns."""
+    pts = []
+    cx, cy = RACETRACK_CENTER_ENU
+    r = RACETRACK_TURN_RADIUS_M
+    half_straight = RACETRACK_STRAIGHT_LENGTH_M / 2.0
+    
+    # Calculate points per section (2 straights + 2 semicircles)
+    points_per_straight = RACETRACK_NUM_POINTS // 4
+    points_per_turn = RACETRACK_NUM_POINTS // 4
+    
+    # Bottom straight (left to right)
+    for i in range(points_per_straight):
+        t = i / points_per_straight
+        x = -half_straight + t * RACETRACK_STRAIGHT_LENGTH_M
+        y = -r
+        pts.append(Waypoint.from_enu(cx + x, cy + y, FLIGHT_HEIGHT_M))
+    
+    # Right semicircle (bottom to top)
+    for i in range(points_per_turn):
+        t = i / points_per_turn
+        angle = -math.pi / 2.0 + t * math.pi
+        x = half_straight + r * math.cos(angle)
+        y = r * math.sin(angle)
+        pts.append(Waypoint.from_enu(cx + x, cy + y, FLIGHT_HEIGHT_M))
+    
+    # Top straight (right to left)
+    for i in range(points_per_straight):
+        t = i / points_per_straight
+        x = half_straight - t * RACETRACK_STRAIGHT_LENGTH_M
+        y = r
+        pts.append(Waypoint.from_enu(cx + x, cy + y, FLIGHT_HEIGHT_M))
+    
+    # Left semicircle (top to bottom)
+    for i in range(points_per_turn):
+        t = i / points_per_turn
+        angle = math.pi / 2.0 + t * math.pi
+        x = -half_straight + r * math.cos(angle)
+        y = r * math.sin(angle)
+        pts.append(Waypoint.from_enu(cx + x, cy + y, FLIGHT_HEIGHT_M))
+    
+    return pts
+
+def generate_star_waypoints() -> List[Waypoint]:
+    """Generate 5-pointed star waypoints with sharp angular turns."""
+    pts = []
+    cx, cy = STAR_CENTER_ENU
+    n = STAR_NUM_POINTS
+    
+    # For a 5-pointed star, connect every 2nd point (skip 1)
+    # Points are arranged at angles: 0, 72, 144, 216, 288 degrees
+    # Star order: 0 -> 144 -> 288 -> 72 -> 216 -> 0
+    for i in range(n + 1):  # +1 to close the star
+        # Skip every other vertex to create star pattern
+        vertex_idx = (i * 2) % n
+        angle = math.radians(90 + vertex_idx * (360.0 / n))  # Start from top
+        x = STAR_RADIUS_M * math.cos(angle)
+        y = STAR_RADIUS_M * math.sin(angle)
+        pts.append(Waypoint.from_enu(cx + x, cy + y, FLIGHT_HEIGHT_M))
+    
+    return pts
+
+def generate_step_waypoints() -> List[Waypoint]:
+    """Generate staircase/step waypoints with discrete lateral jumps."""
+    pts = []
+    step_length = STEP_TOTAL_LENGTH_M / STEP_NUM_STEPS
+    
+    for i in range(STEP_NUM_STEPS + 1):
+        forward_distance = i * step_length
+        # Alternate lateral position: 0, +width, 0, +width, ...
+        lateral_deviation = STEP_WIDTH_M if (i % 2 == 1) else 0.0
+        
+        if i > 0:
+            # Add intermediate point at same y but new x (horizontal step)
+            pts.append(Waypoint.from_enu(lateral_deviation, forward_distance - step_length, FLIGHT_HEIGHT_M))
+        
+        pts.append(Waypoint.from_enu(lateral_deviation, forward_distance, FLIGHT_HEIGHT_M))
+    
+    return pts
+
+def generate_lawnmower_waypoints() -> List[Waypoint]:
+    """Generate lawnmower/boustrophedon waypoints for area coverage."""
+    pts = []
+    sx, sy = LAWNMOWER_START_ENU
+    
+    for i in range(LAWNMOWER_NUM_PASSES):
+        forward_distance = sy + i * LAWNMOWER_SWEEP_LENGTH_M
+        
+        if i % 2 == 0:
+            # Sweep left to right
+            pts.append(Waypoint.from_enu(sx, forward_distance, FLIGHT_HEIGHT_M))
+            pts.append(Waypoint.from_enu(sx + LAWNMOWER_SWEEP_WIDTH_M, forward_distance, FLIGHT_HEIGHT_M))
+        else:
+            # Sweep right to left
+            pts.append(Waypoint.from_enu(sx + LAWNMOWER_SWEEP_WIDTH_M, forward_distance, FLIGHT_HEIGHT_M))
+            pts.append(Waypoint.from_enu(sx, forward_distance, FLIGHT_HEIGHT_M))
+    
+    return pts
+
+def generate_diamond_waypoints() -> List[Waypoint]:
+    """Generate diamond/rhombus waypoints with 45-degree diagonal movements."""
+    pts = []
+    cx, cy = DIAMOND_CENTER_ENU
+    half_width = DIAMOND_WIDTH_M / 2.0
+    half_length = DIAMOND_LENGTH_M / 2.0
+    
+    # Four corners: top, right, bottom, left, back to top
+    corners = [
+        (cx, cy + half_length),          # Top
+        (cx + half_width, cy),           # Right
+        (cx, cy - half_length),          # Bottom
+        (cx - half_width, cy),           # Left
+        (cx, cy + half_length),          # Back to top (close the shape)
+    ]
+    
+    for x, y in corners:
+        pts.append(Waypoint.from_enu(x, y, FLIGHT_HEIGHT_M))
+    
+    return pts
+
+def generate_ellipse_waypoints() -> List[Waypoint]:
+    """Generate ellipse waypoints with configurable major/minor axes."""
+    pts = []
+    cx, cy = ELLIPSE_CENTER_ENU
+    
+    for i in range(ELLIPSE_NUM_POINTS):
+        t = (i / ELLIPSE_NUM_POINTS) * 2.0 * math.pi
+        x = ELLIPSE_MINOR_AXIS_M * math.cos(t)  # Minor axis along x
+        y = ELLIPSE_MAJOR_AXIS_M * math.sin(t)  # Major axis along y
+        pts.append(Waypoint.from_enu(cx + x, cy + y, FLIGHT_HEIGHT_M))
+    
+    return pts
+
+def generate_rose_waypoints() -> List[Waypoint]:
+    """Generate polar rose curve waypoints creating flower-like petal pattern.
+    
+    Parametric form (polar):
+        r = amplitude * cos(k * theta)
+    where k = num_petals for odd petals, k = num_petals/2 for even petals.
+    """
+    pts = []
+    cx, cy = ROSE_CENTER_ENU
+    k = ROSE_NUM_PETALS
+    
+    for i in range(ROSE_NUM_POINTS):
+        theta = (i / ROSE_NUM_POINTS) * 2.0 * math.pi
+        r = ROSE_AMPLITUDE_M * math.cos(k * theta)
+        x = r * math.cos(theta)
+        y = r * math.sin(theta)
+        pts.append(Waypoint.from_enu(cx + x, cy + y, FLIGHT_HEIGHT_M))
+    
+    return pts
+
+def generate_random_waypoints() -> List[Waypoint]:
+    """Generate pseudo-random waypoints within a bounded area."""
+    import random
+    pts = []
+    cx, cy = RANDOM_CENTER_ENU
+    
+    # Set seed for reproducibility
+    random.seed(RANDOM_SEED)
+    
+    for _ in range(RANDOM_NUM_POINTS):
+        x = cx + random.uniform(-RANDOM_BOUND_X_M, RANDOM_BOUND_X_M)
+        y = cy + random.uniform(-RANDOM_BOUND_Y_M, RANDOM_BOUND_Y_M)
+        pts.append(Waypoint.from_enu(x, y, FLIGHT_HEIGHT_M))
+    
+    return pts
+
+def generate_custom_waypoints(custom_waypoint_id: int) -> List[Waypoint]:
+    return [Waypoint.from_enu(*p) for p in CUSTOM_WAYPOINTS_ENU[custom_waypoint_id]]
+
+def build_hardcoded_waypoints(custom_waypoint_id: int = None) -> List[Waypoint]:
     mode = TRAJ_MODE.lower()
     if mode == "line":
         wps = generate_line_waypoints()
@@ -116,8 +432,32 @@ def build_hardcoded_waypoints() -> List[Waypoint]:
         wps = generate_square_waypoints()
     elif mode == "circle":
         wps = generate_circle_waypoints()
+    elif mode == "zigzag":
+        wps = generate_custom_zigzag_waypoints()
+    elif mode == "sinusoid":
+        wps = generate_custom_sinusoid_waypoints()
+    elif mode == "figure8":
+        wps = generate_custom_figure8_waypoints()
+    elif mode == "racetrack":
+        wps = generate_racetrack_waypoints()
+    elif mode == "star":
+        wps = generate_star_waypoints()
+    elif mode == "step":
+        wps = generate_step_waypoints()
+    elif mode == "lawnmower":
+        wps = generate_lawnmower_waypoints()
+    elif mode == "diamond":
+        wps = generate_diamond_waypoints()
+    elif mode == "ellipse":
+        wps = generate_ellipse_waypoints()
+    elif mode == "rose":
+        wps = generate_rose_waypoints()
+    elif mode == "random":
+        wps = generate_random_waypoints()
+    elif mode == "custom":
+        wps = generate_custom_waypoints(custom_waypoint_id)
     else:
-        raise ValueError(f"Unknown TRAJ_MODE '{TRAJ_MODE}'. Use 'line' | 'square' | 'circle'.")
+        raise ValueError(f"Unknown TRAJ_MODE '{TRAJ_MODE}'. Use 'line' | 'square' | 'circle' | 'zigzag' | 'sinusoid' | 'figure8' | 'racetrack' | 'star' | 'step' | 'lawnmower' | 'diamond' | 'ellipse' | 'rose' | 'random' | 'custom'.")
     return wps
 
 class WaypointOffboard(Node):
