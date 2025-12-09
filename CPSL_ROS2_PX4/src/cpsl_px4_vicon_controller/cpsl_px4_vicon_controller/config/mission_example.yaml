@@ -1,12 +1,23 @@
-/**:
+waypoint_offboard:
   ros__parameters:
-    frame: ENU
-    # waypoints: 
-    #   - [0.0, 0.0, 0.6, 0.0]
-    xy_accept: 0.10
-    z_accept: 0.10
-    hold_time: 5.0
+    # PX4 topic namespace (matches /<ns>/fmu/...)
+    ns: "/cpsl_uav_7"
+
+    # Acceptance radii & dwell (more robust indoors)
+    xy_accept: 0.25     # was 0.10
+    z_accept: 0.15      # was 0.10
+    hold_time: 1.0      # was 5.0
+
+    # Takeoff behavior (altitude-only + short dwell)
+    enable_takeoff: true
+    takeoff_height_m: 0.6
+    takeoff_hold_s: 2.0
+
+    # Publishing & mode helpers
     publish_rate_hz: 20.0
     auto_arm: true
     auto_offboard: true
 
+    # Optional: reject fly-bys when near a waypoint
+    speed_gate_enable: true
+    speed_gate_max: 0.30  # m/s
