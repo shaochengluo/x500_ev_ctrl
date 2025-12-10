@@ -1,7 +1,7 @@
 waypoint_offboard:
   ros__parameters:
     # PX4 topic namespace (matches /<ns>/fmu/...)
-    ns: "/cpsl_uav_7"
+    ns: "/cpsl_uav_10"
 
     # Acceptance radii & dwell (more robust indoors)
     xy_accept: 0.25     # was 0.10

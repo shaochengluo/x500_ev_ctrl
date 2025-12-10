@@ -32,7 +32,7 @@ TRAJ_MODE = "line"   # "line" | "square" | "circle" | "custom"
 FLIGHT_HEIGHT_M: float = 1.0
 
 # 1) LINE: single target point after takeoff (ENU)
-LINE_P1_ENU: Tuple[float, float, float] = (0.50, 1.00, FLIGHT_HEIGHT_M)
+LINE_P1_ENU: Tuple[float, float, float] = (0.4, 0.7, FLIGHT_HEIGHT_M)
 
 # 2) SQUARE (ENU corners)
 SQUARE_POINTS_ENU: List[Tuple[float, float, float]] = [
@@ -158,10 +158,10 @@ class WaypointOffboard(Node):
 
         # Optional speed gate at waypoint
         self.declare_parameter('speed_gate_enable', True)
-        self.declare_parameter('speed_gate_max', 0.30)  # m/s
+        self.declare_parameter('speed_gate_max', 0.10)  # m/s
 
         # Namespace (so you can change /cpsl_uav_7 easily)
-        self.declare_parameter('ns', '/cpsl_uav_7')
+        self.declare_parameter('ns', '/cpsl_uav_10')
 
         # -------- Mission --------
         waypoints_ned: List[Waypoint] = build_hardcoded_waypoints()
@@ -217,7 +217,7 @@ class WaypointOffboard(Node):
         # Mission-complete → land after delay
         self.mission_done_time = None
         self.landing_initiated = False
-        self.LAND_DELAY_S = 10.0
+        self.LAND_DELAY_S = 20.0
 
         self.timer = self.create_timer(1.0/self.rate_hz, self.on_timer)
 
