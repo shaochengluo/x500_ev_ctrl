@@ -28,7 +28,7 @@ from px4_msgs.msg import (
 )
 
 # ===================== USER TRAJECTORY CONFIG =====================
-TRAJ_MODE = "line"   # "line" | "square" | "circle" | "custom"
+TRAJ_MODE = "custom"   # "line" | "square" | "circle" | "custom"
 FLIGHT_HEIGHT_M: float = 1.0
 
 # 1) LINE: single target point after takeoff (ENU)
@@ -58,6 +58,234 @@ CUSTOM_WAYPOINTS_ENU: Dict[int, List[Tuple[float, float, float]]] = {
         (0.00, 1.50, FLIGHT_HEIGHT_M),
         (0.00, 2.00, FLIGHT_HEIGHT_M),
     ],
+
+    1: [
+    (-0.4, -0.3, FLIGHT_HEIGHT_M),
+    (0.4, 0.7, FLIGHT_HEIGHT_M),
+    ],
+
+    2: [
+    (0.0, -3.0, FLIGHT_HEIGHT_M),
+    (0.0, 1.5, FLIGHT_HEIGHT_M),
+    ],
+
+    3: [
+    (0.0, -3.0, FLIGHT_HEIGHT_M),
+    (0.0, -1.5, FLIGHT_HEIGHT_M),
+    (0.0, 0.0, FLIGHT_HEIGHT_M),
+    (0.0, 1.5, FLIGHT_HEIGHT_M),
+    ],
+
+    4: [
+    (0.0, -3.0, FLIGHT_HEIGHT_M),
+    (0.0, -2.25, FLIGHT_HEIGHT_M),
+    (0.0, -1.5, FLIGHT_HEIGHT_M),
+    (0.0, -0.75, FLIGHT_HEIGHT_M),
+    (0.0, 0.0, FLIGHT_HEIGHT_M),
+    (0.0, 0.75, FLIGHT_HEIGHT_M),
+    (0.0, 1.5, FLIGHT_HEIGHT_M),
+    ],    
+
+    5: [
+    (0.0, -3.0, FLIGHT_HEIGHT_M),
+    (0.0, -2.25, FLIGHT_HEIGHT_M),
+    (0.0, -1.5, FLIGHT_HEIGHT_M),
+    (0.0, -0.75, FLIGHT_HEIGHT_M),
+    (0.0, -0.75, FLIGHT_HEIGHT_M),
+    (0.0, -0.75, FLIGHT_HEIGHT_M),
+    (0.0, -0.75, FLIGHT_HEIGHT_M),
+    (0.0, 0.0, FLIGHT_HEIGHT_M),
+    (0.0, 0.75, FLIGHT_HEIGHT_M),
+    (0.0, 1.5, FLIGHT_HEIGHT_M),
+    ],  
+
+    # Laps
+     6: [
+    (0.0, -3.0, FLIGHT_HEIGHT_M),
+    (0.0, -2.25, FLIGHT_HEIGHT_M),
+    (0.0, -1.5, FLIGHT_HEIGHT_M),
+    (0.0, -0.75, FLIGHT_HEIGHT_M),
+    (0.0, -0.75, FLIGHT_HEIGHT_M),
+    (0.0, 0.0, FLIGHT_HEIGHT_M),
+    (0.0, 0.75, FLIGHT_HEIGHT_M),
+    (0.0, 1.5, FLIGHT_HEIGHT_M),
+    (0.0, 0.75, FLIGHT_HEIGHT_M),
+    (0.0, 0.0, FLIGHT_HEIGHT_M),
+    (0.0, -0.75, FLIGHT_HEIGHT_M),
+    (0.0, -0.75, FLIGHT_HEIGHT_M),
+    (0.0, -1.5, FLIGHT_HEIGHT_M),
+    (0.0, -2.25, FLIGHT_HEIGHT_M),
+    (0.0, -3.0, FLIGHT_HEIGHT_M),
+    ],
+
+    # SEMICIRCLE
+     7: [
+    (0.75, -2.0, FLIGHT_HEIGHT_M),
+    (0.43, -1.96, FLIGHT_HEIGHT_M),
+    (0.12, -1.83, FLIGHT_HEIGHT_M),
+    (-0.13, -1.63, FLIGHT_HEIGHT_M),
+    (-0.33, -1.37, FLIGHT_HEIGHT_M),
+    (-0.46, -1.07, FLIGHT_HEIGHT_M),
+    (-0.5, -0.75, FLIGHT_HEIGHT_M),  # Middle point
+    (-0.46, -0.43, FLIGHT_HEIGHT_M),
+    (-0.33, -0.12, FLIGHT_HEIGHT_M),
+    (-0.13, 0.13, FLIGHT_HEIGHT_M),
+    (0.13, 0.33, FLIGHT_HEIGHT_M),
+    (0.43, 0.46, FLIGHT_HEIGHT_M),
+    (0.75, 0.5, FLIGHT_HEIGHT_M),
+],
+
+    #triangle
+    8: [
+    (0.3, -0.532, FLIGHT_HEIGHT_M),
+    (0.55, -0.099, FLIGHT_HEIGHT_M),
+    (0.8, 0.334, FLIGHT_HEIGHT_M),
+    (1.05, 0.767, FLIGHT_HEIGHT_M),
+    (1.3, 1.2, FLIGHT_HEIGHT_M),
+    (1.3, 1.2, FLIGHT_HEIGHT_M),
+    (0.8, 1.2, FLIGHT_HEIGHT_M),
+    (0.3, 1.2, FLIGHT_HEIGHT_M),
+    (-0.2, 1.2, FLIGHT_HEIGHT_M),
+    (-0.7, 1.2, FLIGHT_HEIGHT_M),
+    (-0.7, 1.2, FLIGHT_HEIGHT_M),
+    (-0.45, 0.767, FLIGHT_HEIGHT_M),
+    (-0.2, 0.334, FLIGHT_HEIGHT_M),
+    (0.05, -0.099, FLIGHT_HEIGHT_M),
+    (0.3, -0.532, FLIGHT_HEIGHT_M)
+],
+    #square
+    9: [
+    (1.1, -1.0, FLIGHT_HEIGHT_M),
+    (0.6, -1.0, FLIGHT_HEIGHT_M),
+    (0.1, -1.0, FLIGHT_HEIGHT_M),
+    (-0.4, -1.0, FLIGHT_HEIGHT_M),
+    (-0.4, -1.0, FLIGHT_HEIGHT_M),
+    (-0.4, -0.5, FLIGHT_HEIGHT_M),
+    (-0.4, 0.0, FLIGHT_HEIGHT_M),
+    (-0.4, 0.5, FLIGHT_HEIGHT_M),
+    (-0.4, 0.5, FLIGHT_HEIGHT_M),
+    (0.1, 0.5, FLIGHT_HEIGHT_M),
+    (0.6, 0.5, FLIGHT_HEIGHT_M),
+    (1.1, 0.5, FLIGHT_HEIGHT_M),
+    (1.1, 0.5, FLIGHT_HEIGHT_M),
+    (1.1, 0.0, FLIGHT_HEIGHT_M),
+    (1.1, -0.5, FLIGHT_HEIGHT_M),
+    (1.1, -1.0, FLIGHT_HEIGHT_M),
+],
+
+    #zigzag
+    10: [
+    (1.1, -1.0, FLIGHT_HEIGHT_M),
+    (0.6, -0.83, FLIGHT_HEIGHT_M),
+    (0.1, -0.67, FLIGHT_HEIGHT_M),
+    (-0.4, -0.5, FLIGHT_HEIGHT_M),
+    (-0.4, -0.5, FLIGHT_HEIGHT_M),
+    (0.1, -0.33, FLIGHT_HEIGHT_M),
+    (0.6, -0.17, FLIGHT_HEIGHT_M),
+    (1.1, 0.0, FLIGHT_HEIGHT_M),
+    (1.1, 0.0, FLIGHT_HEIGHT_M),
+    (0.6, 0.17, FLIGHT_HEIGHT_M),
+    (0.1, 0.33, FLIGHT_HEIGHT_M),
+    (-0.4, 0.5, FLIGHT_HEIGHT_M)
+],
+
+    #star
+    11 : [
+    # Bottom curved edge
+    (1.1, -1.0, FLIGHT_HEIGHT_M),
+    (0.8857, -0.8698, FLIGHT_HEIGHT_M),
+    (0.6714, -0.7655, FLIGHT_HEIGHT_M),
+    (0.4571, -0.7075, FLIGHT_HEIGHT_M),
+    (0.2429, -0.7075, FLIGHT_HEIGHT_M),
+    (0.0286, -0.7655, FLIGHT_HEIGHT_M),
+    (-0.1857, -0.8698, FLIGHT_HEIGHT_M),
+    (-0.4, -1.0, FLIGHT_HEIGHT_M),
+    (-0.4, -1.0, FLIGHT_HEIGHT_M),
+
+    # Left curved edge
+    (-0.2698, -0.7857, FLIGHT_HEIGHT_M),
+    (-0.1655, -0.5714, FLIGHT_HEIGHT_M),
+    (-0.1075, -0.3571, FLIGHT_HEIGHT_M),
+    (-0.1075, -0.1429, FLIGHT_HEIGHT_M),
+    (-0.1655,  0.0714, FLIGHT_HEIGHT_M),
+    (-0.2698,  0.2857, FLIGHT_HEIGHT_M),
+    (-0.4,  0.5, FLIGHT_HEIGHT_M),
+    (-0.4,  0.5, FLIGHT_HEIGHT_M),
+
+    # Top curved edge
+    (-0.1857, 0.3698, FLIGHT_HEIGHT_M),
+    (0.0286,  0.2655, FLIGHT_HEIGHT_M),
+    (0.2429,  0.2075, FLIGHT_HEIGHT_M),
+    (0.4571,  0.2075, FLIGHT_HEIGHT_M),
+    (0.6714,  0.2655, FLIGHT_HEIGHT_M),
+    (0.8857,  0.3698, FLIGHT_HEIGHT_M),
+    (1.1,  0.5, FLIGHT_HEIGHT_M),
+    (1.1,  0.5, FLIGHT_HEIGHT_M),
+
+    # Right curved edge
+    (0.9698,  0.2857, FLIGHT_HEIGHT_M),
+    (0.8655,  0.0714, FLIGHT_HEIGHT_M),
+    (0.8075, -0.1429, FLIGHT_HEIGHT_M),
+    (0.8075, -0.3571, FLIGHT_HEIGHT_M),
+    (0.8655, -0.5714, FLIGHT_HEIGHT_M),
+    (0.9698, -0.7857, FLIGHT_HEIGHT_M),
+    (1.1, -1.0, FLIGHT_HEIGHT_M),
+],
+
+    # half period sinusoid/hill
+    12 : [
+    (-0.4000, -1.5000, FLIGHT_HEIGHT_M), # 1: Start point (X-Min)
+    (-0.3633, -1.4000, FLIGHT_HEIGHT_M),
+    (-0.2568, -1.3000, FLIGHT_HEIGHT_M),
+    (-0.0908, -1.2000, FLIGHT_HEIGHT_M),
+    (0.1182, -1.1000, FLIGHT_HEIGHT_M),
+    (0.3500, -1.0000, FLIGHT_HEIGHT_M),
+    (0.5818, -0.9000, FLIGHT_HEIGHT_M),
+    (0.7908, -0.8000, FLIGHT_HEIGHT_M),
+    (0.9568, -0.7000, FLIGHT_HEIGHT_M),
+    (1.0633, -0.6000, FLIGHT_HEIGHT_M),
+    (1.1000, -0.5000, FLIGHT_HEIGHT_M), # 11: Midpoint (X-Max)
+    (1.0633, -0.4000, FLIGHT_HEIGHT_M),
+    (0.9568, -0.3000, FLIGHT_HEIGHT_M),
+    (0.7908, -0.2000, FLIGHT_HEIGHT_M),
+    (0.5818, -0.1000, FLIGHT_HEIGHT_M),
+    (0.3500, 0.0000, FLIGHT_HEIGHT_M), # 16: X-Centerline
+    (0.1182, 0.1000, FLIGHT_HEIGHT_M),
+    (-0.0908, 0.2000, FLIGHT_HEIGHT_M),
+    (-0.2568, 0.3000, FLIGHT_HEIGHT_M),
+    (-0.3633, 0.4000, FLIGHT_HEIGHT_M),
+    (-0.4000, 0.5000, FLIGHT_HEIGHT_M)  # 21: End point (X-Min)
+],
+
+    # figure 8
+    13: [
+    (0.3500, -0.5000, FLIGHT_HEIGHT_M), # 1: Start/End/Center
+    (0.5818, 0.0878, FLIGHT_HEIGHT_M),
+    (0.7908, 0.4511, FLIGHT_HEIGHT_M),
+    (0.9568, 0.4511, FLIGHT_HEIGHT_M),
+    (1.0633, 0.0878, FLIGHT_HEIGHT_M),
+    (1.1000, -0.5000, FLIGHT_HEIGHT_M), # 6: Right Peak (X=1.1)
+    (1.0633, -1.0878, FLIGHT_HEIGHT_M),
+    (0.9568, -1.4511, FLIGHT_HEIGHT_M),
+    (0.7908, -1.4511, FLIGHT_HEIGHT_M),
+    (0.5818, -1.0878, FLIGHT_HEIGHT_M),
+    (0.3500, -0.5000, FLIGHT_HEIGHT_M), # 11: Center Crossing
+    (0.1182, 0.0878, FLIGHT_HEIGHT_M),
+    (-0.0908, 0.4511, FLIGHT_HEIGHT_M),
+    (-0.2568, 0.4511, FLIGHT_HEIGHT_M),
+    (-0.3633, 0.0878, FLIGHT_HEIGHT_M),
+    (-0.4000, -0.5000, FLIGHT_HEIGHT_M), # 16: Left Peak (X=-0.4)
+    (-0.3633, -1.0878, FLIGHT_HEIGHT_M),
+    (-0.2568, -1.4511, FLIGHT_HEIGHT_M),
+    (-0.0908, -1.4511, FLIGHT_HEIGHT_M),
+    (0.1182, -1.0878, FLIGHT_HEIGHT_M),
+    (0.3500, -0.5000, FLIGHT_HEIGHT_M)  # 21: End/Center
+]
+
+
+
+    
+    
 }
 
 # ===================== FRAME HELPERS =====================
@@ -121,7 +349,7 @@ def generate_circle_waypoints() -> List[Waypoint]:
 def generate_custom_waypoints(custom_id: int) -> List[Waypoint]:
     return [Waypoint.from_enu(*p) for p in CUSTOM_WAYPOINTS_ENU[custom_id]]
 
-def build_hardcoded_waypoints(custom_id: int = None) -> List[Waypoint]:
+def build_hardcoded_waypoints(custom_id: int = 6) -> List[Waypoint]:
     mode = TRAJ_MODE.lower()
     if mode == "line":
         wps = generate_line_waypoints()
@@ -135,6 +363,8 @@ def build_hardcoded_waypoints(custom_id: int = None) -> List[Waypoint]:
         wps = generate_custom_waypoints(custom_id)
     else:
         raise ValueError(f"Unknown TRAJ_MODE '{TRAJ_MODE}'.")
+    
+    print(f"[DEBUG] build_hardcoded_waypoints: mode={mode}, custom_id={custom_id}, n_wps={len(wps)}")
     return wps
 
 # ===================== NODE =====================
@@ -158,7 +388,7 @@ class WaypointOffboard(Node):
 
         # Optional speed gate at waypoint
         self.declare_parameter('speed_gate_enable', True)
-        self.declare_parameter('speed_gate_max', 0.10)  # m/s
+        self.declare_parameter('speed_gate_max', 0.05)  # m/s
 
         # Namespace (so you can change /cpsl_uav_7 easily)
         self.declare_parameter('ns', '/cpsl_uav_10')

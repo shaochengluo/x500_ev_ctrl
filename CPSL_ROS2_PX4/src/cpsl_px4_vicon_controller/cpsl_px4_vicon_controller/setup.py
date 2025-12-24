@@ -23,6 +23,10 @@ setup(
     entry_points={
         'console_scripts': [
             'waypoint_offboard = cpsl_px4_vicon_controller.waypoint_offboard_node:main',
+            'ros2_streaming_ts = cpsl_px4_vicon_controller.ros2_streaming_ts:main',
+            'ros2_streaming_ts_temp = cpsl_px4_vicon_controller.ros2_streaming_ts_temp:main',
+            'ros2_streaming_ts_dual_imu = cpsl_px4_vicon_controller.ros2_streaming_ts_dual_imu:main',
+            'ros2_streaming_ts_dual_imu_icm = cpsl_px4_vicon_controller.ros2_streaming_ts_dual_imu_icm:main',
         ],
     },
 )
