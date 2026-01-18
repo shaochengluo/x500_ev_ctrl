@@ -13,7 +13,7 @@ ekf2 stop
 ekf2 start 
 
 ## Connect PX4 to ROS2
-MicroXRCEAgent udp4 -p 8888
+MicroXRCEAgent udp4 -p 8888 
 
 
 ## Launch the PX4 control node

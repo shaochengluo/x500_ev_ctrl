@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Crazyflie Control Interface</title>
+    <style>
+        /* 将页面内容垂直和水平居中 */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+            font-family: Arial, sans-serif;
+        }
+        /* 包裹所有内容的容器 */
+        .container {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        /* 调整标题大小 */
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 2em;
+            margin-top: 30px;
+            margin-bottom: 10px;
+        }
+        /* 提高标签和输入框的字体大小 */
+        label {
+            font-size: 1.5em;
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="text"] {
+            font-size: 1.5em;
+            padding: 10px;
+            width: 80%;
+            max-width: 500px;
+            margin-bottom: 20px;
+        }
+        button {
+            font-size: 1.5em;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        pre {
+            font-size: 1.5em;
+            text-align: left;
+            background: #eee;
+            padding: 10px;
+            border-radius: 4px;
+            overflow: auto;
+            max-height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Crazyflie Control Interface</h1>
+        <form method="post">
+            <label for="command">Enter your command:</label>
+            <input type="text" id="command" name="command" placeholder="e.g., can u let crazyflie land?">
+            <br>
+            <button type="submit">Run Command</button>
+        </form>
+        <h2>Output:</h2>
+        <pre>{{ result }}</pre>
+    </div>
+</body>
+</html>
