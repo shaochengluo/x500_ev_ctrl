@@ -1,0 +1,10 @@
+sigma_tilt_base = deg2rad(0.5);           % example tilt stdev in rad
+sigma_bw_base   = [1e-3, 1e-3];         % example bias RW stdev [bp,bq] (rad/s)/sqrt(s)
+sigma_g_base    = 0.05;         % example gyro white noise (rad/s)/sqrt(Hz)
+
+sigma_tilt = sqrt(Rscale) * sigma_tilt_base;
+sigma_bw   = sqrt(Qscale) * sigma_bw_base;
+sigma_g    = sigma_g_base;
+
+R_scales = [0.5 1 2 4];
+Q_scales = [0.25 1 4];
